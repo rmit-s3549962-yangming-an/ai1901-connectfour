@@ -19,7 +19,7 @@ class StudentAgent(RandomAgent):
         """
         temp = np.array(board.board);
         mcts = Node(temp, 0, None, None)
-        training_time = 10000
+        training_time = 20000
 
         node = train_mcts_once(mcts)
 

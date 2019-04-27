@@ -26,8 +26,8 @@ class Game:
     Manages the players of the Game
     """
 
-    PLAYER_ONE_ID = 1
-    PLAYER_TWO_ID = 2
+    PLAYER_ONE_ID = -1
+    PLAYER_TWO_ID = 1
 
     def __init__(
         self,
@@ -67,7 +67,7 @@ def validate_args(args):
     p1 = 0
     p2 = 0
 
-    #print("player one = ", args.player_one)
+    print("player one = ", args.player_one)
 
     if args.player_one not in PLAYER_TYPE_MAP:
         #print("here")
@@ -110,7 +110,7 @@ def main():
         "--player-two",
         dest="player_two",
         action="store",
-        default="HumanPlayer",
+        default="StudentAgent",
         help="Set the agent for player two of the game",
     )
     parser.add_argument(

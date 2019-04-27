@@ -1,11 +1,13 @@
 from connectfour.agents.computer_player import RandomAgent
 import random
+import numpy as np
+
+from connectfour.connect4.mcts_ia import *
+
 
 class StudentAgent(RandomAgent):
     def __init__(self, name):
         super().__init__(name)
-        self.MaxDepth = 1
-
 
     def get_move(self, board):
         """
@@ -15,78 +17,28 @@ class StudentAgent(RandomAgent):
         Returns:
             A tuple of two integers, (row, col)
         """
+        temp = np.array(board.board);
+        mcts = Node(temp, 0, None, None)
+        training_time = 10000
 
-        valid_moves = board.valid_moves()
-        vals = []
-        moves = []
+        node = train_mcts_once(mcts)
 
-        for move in valid_moves:
-            next_state = board.next_state(self.id, move[1])
-            moves.append( move )
-            vals.append( self.dfMiniMax(next_state, 1) )
 
-        bestMove = moves[vals.index( max(vals) )]
-        return bestMove
+        node = train_mcts_during(node, training_time)
+        print([(n.win, n.games) for n in node.children])
+        node, move = node.select_move()
+        utils_print(node.state)
+        row = board.try_move(move)
+        return row, move
 
-    def dfMiniMax(self, board, depth):
-        # Goal return column with maximized scores of all possible next states
-        
-        if depth == self.MaxDepth:
-            return self.evaluateBoardState(board)
 
-        valid_moves = board.valid_moves()
-        vals = []
-        moves = []
-
-        for move in valid_moves:
-            if depth % 2 == 1:
-                next_state = board.next_state(self.id % 2 + 1, move[1])
-            else:
-                next_state = board.next_state(self.id, move[1])
-                
-            moves.append( move )
-            vals.append( self.dfMiniMax(next_state, depth + 1) )
-
-        
-        if depth % 2 == 1:
-            bestVal = min(vals)
-        else:
-            bestVal = max(vals)
-
-        return bestVal
-
-    def evaluateBoardState(self, board):
-        """
-        Your evaluation function should look at the current state and return a score for it. 
-        As an example, the random agent provided works as follows:
-            If the opponent has won this game, return -1.
-            If we have won the game, return 1.
-            If neither of the players has won, return a random number.
-        """
-        
-        """
-        These are the variables and functions for board objects which may be helpful when creating your Agent.
-        Look into board.py for more information/descriptions of each, or to look for any other definitions which may help you.
-
-        Board Variables:
-            board.width 
-            board.height
-            board.last_move
-            board.num_to_connect
-            board.winning_zones
-            board.score_array 
-            board.current_player_score
-
-        Board Functions:
-            get_cell_value(row, col)
-            try_move(col)
-            valid_move(row, col)
-            valid_moves()
-            terminal(self)
-            legal_moves()
-            next_state(turn)
-            winner()
-        """
-				
-        return random.uniform(0, 1)
-
+def utils_print(grid):
+    print_grid = grid.astype(str)
+    print_grid[print_grid == '-1'] = 'X'
+    print_grid[print_grid == '1'] = 'O'
+    print_grid[print_grid == '0'] = ' '
+    res = str(print_grid).replace("'", "")
+    res = res.replace('[[', '[')
+    res = res.replace(']]', ']')
+    print(' ' + res)
+    print('  ' + ' '.join('0123456'))
